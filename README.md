@@ -17,7 +17,7 @@ Windows offers `_tprintf` via `<tchar.h>`, but it's Microsoft-only. **uprintf** 
 
 ## Quick start
 
-Copy `include/uprintf.h` and `include/uprintf_config.h` into your project.
+Copy `include/uprintf.h`, `include/uprintf_config.h`, and optionally `include/uprintf_color.h` into your project.
 
 ```c
 #define UPRINTF_HEADER_ONLY
@@ -97,6 +97,70 @@ Full syntax: `%[flags][width][.precision][length]specifier`
 
 Compatible with `<inttypes.h>` macros (`PRId32`, `PRIu64`, etc.).
 
+## Color support
+
+Include `uprintf_color.h` for true-color (24-bit) terminal output with multiple color spaces.
+
+```c
+#include "uprintf_color.h"
+
+int main(void) {
+    uc_init();  // enable virtual terminal on Windows
+    char fg[UC_SEQ_MAX], bg[UC_SEQ_MAX];
+
+    // Compile-time macros
+    printf(UC_FG(255,0,0) "Red text" UC_RESET "\n");
+    printf(UC_BOLD UC_FG(0,255,0) "Bold green" UC_RESET "\n");
+
+    // Runtime — RGB
+    uc_fg_rgb(fg, 255, 165, 0);
+    printf("%sOrange%s\n", fg, UC_RESET);
+
+    // Runtime — Hex
+    uc_fg_hex(fg, "#ff6347");
+    printf("%sTomato%s\n", fg, UC_RESET);
+
+    // Runtime — HSL (hue 0-360, saturation 0-1, lightness 0-1)
+    uc_fg_hsl(fg, 280.0, 0.8, 0.6);
+    printf("%sPurple%s\n", fg, UC_RESET);
+
+    // Runtime — OKLCH (lightness 0-1, chroma 0-0.4, hue 0-360)
+    uc_fg_oklch(fg, 0.7, 0.15, 150.0);
+    printf("%sGreen%s\n", fg, UC_RESET);
+
+    // Runtime — CSS named colors (148 colors)
+    uc_fg_css(fg, "cornflowerblue");
+    uc_bg_css(bg, "darkslateblue");
+    printf("%s%sStyled%s\n", fg, bg, UC_RESET);
+
+    return 0;
+}
+```
+
+### Color functions
+
+All functions exist in foreground (`uc_fg_*`) and background (`uc_bg_*`) variants, plus wide equivalents (`uc_wfg_*`, `uc_wbg_*`).
+
+| Function | Description |
+|----------|-------------|
+| `uc_fg_rgb(buf, r, g, b)` | RGB values (0-255, clamped) |
+| `uc_fg_hex(buf, "#rrggbb")` | Hex string (with or without `#`) |
+| `uc_fg_hsl(buf, h, s, l)` | HSL (h: 0-360, s/l: 0-1) |
+| `uc_fg_oklch(buf, l, c, h)` | OKLCH perceptual color space |
+| `uc_fg_css(buf, "name")` | CSS named color (case-insensitive) |
+
+### Compile-time macros
+
+| Macro | Description |
+|-------|-------------|
+| `UC_FG(r,g,b)` / `UC_BG(r,g,b)` | Foreground/background color literal |
+| `UC_RESET` | Reset all attributes |
+| `UC_BOLD` `UC_DIM` `UC_ITALIC` | Text styles |
+| `UC_UNDERLINE` `UC_BLINK` `UC_INVERSE` | Text styles |
+| `UC_HIDDEN` `UC_STRIKE` | Text styles |
+
+Compile with `-lm` when using HSL or OKLCH (requires `<math.h>`).
+
 ## Configuration macros
 
 Define before including `uprintf.h`:
@@ -124,7 +188,7 @@ Define before including `uprintf.h`:
 
 ```bash
 make            # Build tests + examples
-make test       # Run all tests (114 tests)
+make test       # Run all tests (167 tests)
 make test-asan  # Run with AddressSanitizer + UBSan
 make STD=c99 test       # Test in C99 mode
 make UPRINTF_UNICODE=1 test  # Test in wide mode
@@ -173,7 +237,7 @@ conan install --requires=uprintf/1.0.0
 
 ### Manual
 
-Copy `include/uprintf.h` and `include/uprintf_config.h` into your project. That's it.
+Copy `include/uprintf.h`, `include/uprintf_config.h`, and optionally `include/uprintf_color.h` into your project. That's it.
 
 ## License
 

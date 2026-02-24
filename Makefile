@@ -72,12 +72,16 @@ endif
 TESTS = $(BUILDDIR)/test_narrow \
         $(BUILDDIR)/test_wide \
         $(BUILDDIR)/test_snprintf \
-        $(BUILDDIR)/test_security
+        $(BUILDDIR)/test_security \
+        $(BUILDDIR)/test_color
 
 TESTS_ASAN = $(BUILDDIR)/test_narrow_asan \
              $(BUILDDIR)/test_wide_asan \
              $(BUILDDIR)/test_snprintf_asan \
-             $(BUILDDIR)/test_security_asan
+             $(BUILDDIR)/test_security_asan \
+             $(BUILDDIR)/test_color_asan
+
+HEADERS = $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h $(INCDIR)/uprintf_color.h
 
 # Examples
 EXAMPLES = $(BUILDDIR)/basic
@@ -98,33 +102,39 @@ $(BUILDDIR)/uprintf.o: $(SRCDIR)/uprintf.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # --- Tests (header-only mode) ---
-$(BUILDDIR)/test_narrow: $(TESTDIR)/test_narrow.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_narrow: $(TESTDIR)/test_narrow.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(BUILDDIR)/test_wide: $(TESTDIR)/test_wide.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_wide: $(TESTDIR)/test_wide.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(BUILDDIR)/test_snprintf: $(TESTDIR)/test_snprintf.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_snprintf: $(TESTDIR)/test_snprintf.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(BUILDDIR)/test_security: $(TESTDIR)/test_security.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_security: $(TESTDIR)/test_security.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) -o $@ $<
+
+$(BUILDDIR)/test_color: $(TESTDIR)/test_color.c $(HEADERS) | dirs
+	$(CC) $(CFLAGS) -o $@ $< -lm
 
 # --- Tests with ASAN ---
-$(BUILDDIR)/test_narrow_asan: $(TESTDIR)/test_narrow.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_narrow_asan: $(TESTDIR)/test_narrow.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) $(CFLAGS_ASAN) -o $@ $< $(LDFLAGS_ASAN)
 
-$(BUILDDIR)/test_wide_asan: $(TESTDIR)/test_wide.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_wide_asan: $(TESTDIR)/test_wide.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) $(CFLAGS_ASAN) -o $@ $< $(LDFLAGS_ASAN)
 
-$(BUILDDIR)/test_snprintf_asan: $(TESTDIR)/test_snprintf.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_snprintf_asan: $(TESTDIR)/test_snprintf.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) $(CFLAGS_ASAN) -o $@ $< $(LDFLAGS_ASAN)
 
-$(BUILDDIR)/test_security_asan: $(TESTDIR)/test_security.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/test_security_asan: $(TESTDIR)/test_security.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) $(CFLAGS_ASAN) -o $@ $< $(LDFLAGS_ASAN)
+
+$(BUILDDIR)/test_color_asan: $(TESTDIR)/test_color.c $(HEADERS) | dirs
+	$(CC) $(CFLAGS) $(CFLAGS_ASAN) -o $@ $< $(LDFLAGS_ASAN) -lm
 
 # --- Examples ---
-$(BUILDDIR)/basic: $(EXDIR)/basic.c $(INCDIR)/uprintf.h $(INCDIR)/uprintf_config.h | dirs
+$(BUILDDIR)/basic: $(EXDIR)/basic.c $(HEADERS) | dirs
 	$(CC) $(CFLAGS) -o $@ $<
 
 examples: $(EXAMPLES)
