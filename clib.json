@@ -1,0 +1,12 @@
+{
+  "name": "uprintf",
+  "version": "1.0.0",
+  "repo": "jojo8356/uprintf",
+  "description": "Universal printf for C — auto-dispatches between printf and wprintf. Portable, zero malloc, header-only.",
+  "keywords": ["printf", "wprintf", "unicode", "portable", "tchar", "format"],
+  "license": "MIT",
+  "src": [
+    "include/uprintf.h",
+    "include/uprintf_config.h"
+  ]
+}
